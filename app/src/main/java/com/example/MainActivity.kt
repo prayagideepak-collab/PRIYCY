@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material.icons.outlined.Assessment
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Settings
@@ -39,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.example.service.AppRiskScanner
 import com.example.ui.screens.AppAuditScreen
+import com.example.ui.screens.AppUsesReportScreen
 import com.example.ui.screens.DashboardScreen
 import com.example.ui.screens.EventLogScreen
 import com.example.ui.screens.OnboardingWizardScreen
@@ -174,6 +177,24 @@ fun SensorGuardApp(viewModel: SensorGuardViewModel) {
                         ),
                         modifier = Modifier.testTag("nav_item_policy")
                     )
+
+                    NavigationBarItem(
+                        selected = selectedTab == 4,
+                        onClick = { selectedTab = 4 },
+                        icon = {
+                            Icon(
+                                imageVector = if (selectedTab == 4) Icons.Filled.Assessment else Icons.Outlined.Assessment,
+                                contentDescription = "Report"
+                            )
+                        },
+                        label = { Text("Report") },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = NeonCyan,
+                            selectedTextColor = NeonCyan,
+                            indicatorColor = NeonCyan.copy(alpha = 0.15f)
+                        ),
+                        modifier = Modifier.testTag("nav_item_report")
+                    )
                 }
             }
         ) { innerPadding ->
@@ -198,6 +219,9 @@ fun SensorGuardApp(viewModel: SensorGuardViewModel) {
                     3 -> PolicySettingsScreen(
                         viewModel = viewModel,
                         onRerunWizardClick = { forceShowWizard = true }
+                    )
+                    4 -> AppUsesReportScreen(
+                        viewModel = viewModel
                     )
                 }
             }
