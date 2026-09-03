@@ -283,14 +283,22 @@ fun DashboardScreen(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     
-                    val score = if (!guardState.isServiceRunning) 0 
-                        else if (guardState.isMicLocked || guardState.settings.autoGuardOnScreenOff) 95 
-                        else 60
-                    
+                    val statusText = if (!guardState.isServiceRunning) "NOT PROTECTED"
+                    else if (!guardState.settings.micGuardEnabled && !guardState.settings.camGuardEnabled) "OBSERVATION ONLY"
+                    else if (guardState.isEmergencyLockdown || guardState.isMicLocked || guardState.isCamBlocked) "STRONG"
+                    else "MONITORING"
+
+                    val statusColor = when (statusText) {
+                        "STRONG" -> EmeraldSafe
+                        "MONITORING" -> NeonCyan
+                        "OBSERVATION ONLY" -> AmberWarning
+                        else -> CrimsonAlert
+                    }
+
                     Text(
-                        text = "$score% SECURE",
+                        text = statusText,
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Black),
-                        color = if (score >= 80) EmeraldSafe else if (score > 0) AmberWarning else CrimsonAlert
+                        color = statusColor
                     )
                 }
                 
@@ -393,7 +401,7 @@ fun DashboardScreen(
             SensorTelemetryCard(
                 icon = Icons.Default.Mic,
                 title = "Microphone",
-                stateText = if (guardState.isMicLocked) "LOCKED (Shielded)" else "Available",
+                stateText = if (guardState.isMicLocked) "Protected" else "Monitored",
                 isActive = guardState.isMicLocked,
                 accentColor = if (guardState.isMicLocked) EmeraldSafe else NeonCyan,
                 modifier = Modifier.weight(1f).testTag("telemetry_mic")

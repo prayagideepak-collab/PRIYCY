@@ -560,6 +560,33 @@ class SensorGuardService : Service() {
             .build()
     }
 
+    private fun sendPrivacyAlertNotification(title: String, contentText: String) {
+        val openAppIntent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val openPendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            openAppIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(this, SensorGuardApplication.CHANNEL_ALERTS_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(title)
+            .setContentText(contentText)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_SYSTEM)
+            .setAutoCancel(true)
+            .setContentIntent(openPendingIntent)
+            .build()
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        // Use a unique ID based on the title hash or a fixed one. Let's use a dynamic one to stack recent ones briefly,
+        // or a fixed one to avoid spam. We will use a fixed ID for simplicity so it just updates the latest alert.
+        notificationManager.notify(2001, notification)
+    }
+
     private fun updateNotification(title: String, contentText: String) {
         val notification = buildForegroundNotification(title, contentText)
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
@@ -790,6 +817,15 @@ class SensorGuardService : Service() {
             osEnforcement = "OS VERIFIED",
             timestamp = System.currentTimeMillis()
         )
+
+        // Send a system alert notification when microphone or camera is accessed
+        if (category == LedgerCategory.MICROPHONE || category == LedgerCategory.CAMERA) {
+            val emoji = if (category == LedgerCategory.MICROPHONE) "🎙️" else "📷"
+            sendPrivacyAlertNotification(
+                title = "$emoji $sensorName Access: $appLabel",
+                contentText = "Privacy alert: $appLabel is currently accessing the $sensorName."
+            )
+        }
     }
 
     private fun isUidForeground(uid: Int): Boolean {
