@@ -588,8 +588,8 @@ class SensorGuardService : Service() {
         audioManager = getSystemService(Context.AUDIO_SERVICE) as? AudioManager
         activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
 
-        // 1. Android 29+ (Q) AppOps active watcher for real OS sensor events
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        // 1. Android 30+ (R) AppOps active watcher for real OS sensor events
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
                 val ops = arrayOf(
                     AppOpsManager.OPSTR_RECORD_AUDIO,
@@ -804,7 +804,7 @@ class SensorGuardService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && opActiveChangedListener != null) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && opActiveChangedListener != null) {
             try {
                 appOpsManager?.stopWatchingActive(opActiveChangedListener!!)
             } catch (ignored: Exception) {}
